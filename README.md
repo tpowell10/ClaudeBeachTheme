@@ -1,12 +1,36 @@
 # gulf-sunset
 
-A Florida Gulf-coast beach theme for the Claude desktop and mobile apps, with your usage limits always in view.
+A Florida Gulf-coast beach theme for Claude Code in the Claude desktop and mobile apps, with your usage limits always in view.
+
+![The scene at each step of the 5-hour window, from dawn to night](assets/times-of-day.png)
 
 - A drawn, gently moving backdrop: white sugar sand, waves washing up the shore, sea oats on the dunes, coconut palms, a distant pier, textured clouds and the Gulf.
 - The 5-hour usage window is the time of day, one step every 10%: dawn, sunrise, early morning, morning, midday, afternoon, golden hour, sunset, dusk, night.
 - From 85% of the weekly limit a storm rolls in over whatever time it is.
 - A centered card above the prompt shows each usage window as a solid bar with its percentage and when it resets.
 - Your messages take the color of the time of day; Claude's stay a neutral card. Dark mode sits near true black for OLED screens.
+
+## Install
+
+In the desktop app: click **+** next to the prompt box, then **Plugins**, **Add marketplace** with `tpowell10/ClaudeBeachTheme`, then **Add plugin**.
+
+At the prompt of a Claude Code session:
+
+```
+/plugin install gulf-sunset --marketplace tpowell10/ClaudeBeachTheme
+```
+
+Answer `y` to add the marketplace, then pick a scope (user, to have it in every project).
+
+From a shell:
+
+```
+claude plugin install gulf-sunset --marketplace tpowell10/ClaudeBeachTheme
+```
+
+From a downloaded copy: unzip it into a folder that will stay put, then run the same command with that folder's path in place of `tpowell10/ClaudeBeachTheme`.
+
+A new session loads the theme when it starts.
 
 ## Where it works
 
@@ -17,18 +41,6 @@ A Florida Gulf-coast beach theme for the Claude desktop and mobile apps, with yo
 | Regular claude.ai chats | Not supported: the theme runs in Claude Code sessions |
 
 Usage figures come from a Claude subscription. They appear after the first reply of a session; until then the card says so and the scene shows dawn. An account with no usage limits (an API key, for instance) stays at dawn, and the card says the account reports no limits. Some company accounts only allow approved plugins.
-
-## The usage card
-
-Each window gets a solid bar and its percentage, in the scene's colors:
-
-| Usage | Bar color |
-| --- | --- |
-| Under 50% | Gulf turquoise |
-| 50–79% | Sunset orange |
-| 80% and up | Coral |
-
-The card also says when each window resets, and the status line repeats the two numbers the scene reads, such as `5-hour 34% · Weekly 9%`. A toast tells you when the time of day changes or a storm rolls in.
 
 ## Through the day
 
@@ -47,46 +59,29 @@ The scene follows your 5-hour usage window, one step every 10% (with no 5-hour r
 | 80–89% | Dusk | The sun gone, the afterglow fading |
 | 90%+ | Night | A crescent moon and stars |
 
-![The scene at each step of the 5-hour window, from dawn to night](assets/times-of-day.png)
-
 ## The weekly limit
 
 The weekly limit stays out of the scene until it nears its cap. From 85% a storm rolls in over whatever time of day it is: dark clouds, a gray sky, dull water and light rain, since the week is then what will stop you. The storm clears when the weekly limit resets.
 
-![Midday under clear skies beside the same midday with the storm](assets/storm.png)
+![Midday in fair weather beside the same midday with the storm](assets/storm.png)
+
+## The usage card
+
+Each window gets a solid bar and its percentage, in the scene's colors:
+
+| Usage | Bar color |
+| --- | --- |
+| Under 50% | Gulf turquoise |
+| 50–79% | Sunset orange |
+| 80% and up | Coral |
+
+The card also says when each window resets, and the status line repeats the two numbers the scene reads, such as `5-hour 34% · Weekly 9%`. A toast tells you when the time of day changes or a storm rolls in.
 
 ## Message colors
 
 Your messages take the color of the time of day, deep in dark mode and pale in light mode, and Claude's replies stay a neutral card, so the two are easy to tell apart.
 
 ![Your message bubble and Claude's reply at each time of day, in dark and light mode](assets/message-colors.png)
-
-## Install
-
-At the prompt of a Claude Code session:
-
-```
-/plugin install gulf-sunset --marketplace tpowell10/ClaudeBeachTheme
-```
-
-Answer `y` to add the marketplace, then pick a scope (user, to have it in every project).
-
-From a shell:
-
-```
-claude plugin install gulf-sunset --marketplace tpowell10/ClaudeBeachTheme
-```
-
-In the desktop app, where `/plugin` does not run: click + next to the prompt box, then Plugins, Add marketplace with `tpowell10/ClaudeBeachTheme`, then Add plugin.
-
-A new session loads the theme when it starts.
-
-To install from a downloaded copy instead, unzip it into a folder that will stay put and run:
-
-```
-claude plugin marketplace add <path to the folder>
-claude plugin install gulf-sunset@gulf-sunset-marketplace
-```
 
 ## Changing it
 
