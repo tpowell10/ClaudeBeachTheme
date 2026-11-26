@@ -6,7 +6,7 @@ import { makeColors } from './make-colors.js'
 import { sceneSvg, STAGES, WEATHERS } from './scene'
 import type { Stage, Weather } from './scene'
 
-// A Florida Gulf-coast beach through a whole day. Your usage sits in a card
+// A beach through a whole day. Your usage sits in a card
 // centered above the prompt. The 5-hour window is the scene, one step every
 // 10%: dawn, sunrise, early morning, morning, midday, afternoon, golden hour,
 // sunset, dusk, night. The weekly limit stays out of the scene until it nears
@@ -134,12 +134,12 @@ export function sceneFor(list: readonly Limit[]): Scene {
 
 function altFor(stage: Stage, weather: Weather): string {
   const sky = weather === 'storm' ? ', under a dark storm with light rain' : ''
-  return `A Florida Gulf-coast beach at ${LABELS[stage].toLowerCase()}${sky}: white sand, sea oats, coconut palms, a distant pier, and gentle waves washing up the shore`
+  return `A beach at ${LABELS[stage].toLowerCase()}${sky}: white sand, sea oats, coconut palms, a distant pier, and gentle waves washing up the shore`
 }
 
 const NAMES: Record<string, string> = { five_hour: '5-hour', seven_day: 'Weekly', spend_limit: 'Spend' }
 
-// Bar colors from the scene: Gulf turquoise, sunset orange, then hot coral.
+// Bar colors from the scene: turquoise water, sunset orange, then hot coral.
 function levelColor(percent: number): string {
   if (percent >= 80) return '#ff4f6a'
   if (percent >= 50) return '#ff9a3c'
@@ -194,7 +194,7 @@ async function apply($: EngineInterface, scene: Scene, announce: boolean) {
   } else if (scene.weather !== 'storm' && previous.weather === 'storm') {
     weather = ' The storm has cleared.'
   }
-  const time = scene.stage === previous.stage ? '' : `${LABELS[scene.stage]} on the Gulf.`
+  const time = scene.stage === previous.stage ? '' : `${LABELS[scene.stage]} on the beach.`
   const text = `${time}${weather}`.trim()
   if (text !== '') $.ui.toast(text)
 }

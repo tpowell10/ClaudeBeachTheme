@@ -1,6 +1,5 @@
-// The backdrop: a Gulf-coast barrier-island beach in Florida through a whole
-// day: white sugar sand, sea oats on the dunes, coconut palms, a distant pier,
-// textured clouds and the Gulf. Each Stage is a time of day with its own
+// The backdrop: a beach through a whole day: white sugar sand, sea oats on
+// the dunes, coconut palms, a distant pier, textured clouds and the ocean. Each Stage is a time of day with its own
 // palette and sun (or moon) position; the weather is fair, or a storm.
 // Detail sits at the top, the corners and the foot; the middle stays calm sky
 // and water so the conversation reads over it.
