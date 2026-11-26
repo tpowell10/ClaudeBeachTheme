@@ -89,6 +89,8 @@ Your messages take the color of the time of day, deep in dark mode and pale in l
 - **Colors:** each time of day's sky, sea, sand and sun are in `PALETTES` in `hooks/scene.ts`; the accent and your message color come from `ACCENTS` in `hooks/register.tsx`.
 - **The usage card:** `levelColor` and the card at the end of `hooks/register.tsx`.
 
+After a change, `claude plugin test .` in this folder runs the tests in `tests/`: which scene each usage level picks, the storm coming and clearing, and what the usage card shows.
+
 ## License
 
 MIT, in `LICENSE`.
