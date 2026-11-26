@@ -6,12 +6,11 @@ import { makeColors } from './make-colors.js'
 import { sceneSvg, STAGES, WEATHERS } from './scene'
 import type { Stage, Weather } from './scene'
 
-// A Florida Gulf-coast beach through a whole day. Your usage sits centered
-// above the prompt. The 5-hour window is the scene, one step every 10%: dawn,
-// sunrise, early morning, morning, midday, afternoon, golden hour, sunset,
-// dusk, night. The weekly limit stays out of the
-// scene until it nears its cap: from 85% a storm rolls in, since the week is
-// then what will stop you.
+// A Florida Gulf-coast beach through a whole day. Your usage sits in a card
+// centered above the prompt. The 5-hour window is the scene, one step every
+// 10%: dawn, sunrise, early morning, morning, midday, afternoon, golden hour,
+// sunset, dusk, night. The weekly limit stays out of the scene until it nears
+// its cap: from 85% a storm rolls in, since the week is then what will stop you.
 
 const limits = atom({ plugin: 'gulf-sunset', key: 'limits' } as const, null)
 
@@ -104,10 +103,13 @@ function withMessageColors(colors: ThemeColors, stage: Stage): ThemeColors {
 
 const card = { radius: 14, padding: 14 } as const
 
-function lookFor(stage: Stage): ThemeSetArgs {
+// A light frost on the app's panels: the scene's own fade does the rest.
+const GLASS = { blur: 8, opacity: 0.22 } as const
+
+function lookFor({ stage, weather }: Scene): ThemeSetArgs {
   return {
     colors: withMessageColors(BUILT[stage].theme, stage),
-    backdrop: { scene: stage, glass: { blur: 8, opacity: 0.22 } },
+    backdrop: { scene: `${stage}-${weather}`, glass: GLASS },
     style: {
       UserMessage: { ...card, backgroundColor: 'bg-user-message', color: 'text-user-message' },
       AssistantMessage: { ...card, backgroundColor: 'bg-assistant-message', color: 'text-assistant-message' },
@@ -126,8 +128,13 @@ export function sceneFor(list: readonly Limit[]): Scene {
   const weekly = percentOf(list, 'seven_day') ?? 0
   return {
     stage: stageAt(hourly),
-    weather: weekly >= STORM_FROM ? 'storm' : 'partly',
+    weather: weekly >= STORM_FROM ? 'storm' : 'fair',
   }
+}
+
+function altFor(stage: Stage, weather: Weather): string {
+  const sky = weather === 'storm' ? ', under a dark storm with light rain' : ''
+  return `A Florida Gulf-coast beach at ${LABELS[stage].toLowerCase()}${sky}: white sand, sea oats, coconut palms, a distant pier, and gentle waves washing up the shore`
 }
 
 const NAMES: Record<string, string> = { five_hour: '5-hour', seven_day: 'Weekly', spend_limit: 'Spend' }
@@ -156,11 +163,6 @@ function resetsIn(resetsAt: string | undefined, now: number): string {
 
 let current: string | undefined
 
-function lookForScene({ stage, weather }: Scene): ThemeSetArgs {
-  const look = lookFor(stage)
-  return { ...look, backdrop: { scene: `${stage}-${weather}`, glass: { blur: 8, opacity: 0.22 } } }
-}
-
 async function apply($: EngineInterface, scene: Scene, announce: boolean) {
   const key = `${scene.stage}-${scene.weather}`
   if (key === current) return
@@ -168,11 +170,11 @@ async function apply($: EngineInterface, scene: Scene, announce: boolean) {
   current = key
   let set
   try {
-    set = await $.theme.set(lookForScene(scene))
+    set = await $.theme.set(lookFor(scene))
   } catch (error) {
     // A build that does not take `style` refuses the whole look: set it without.
     $.ui.log(`gulf-sunset: ${String(error)}`)
-    const { style: _style, ...plain } = lookForScene(scene)
+    const { style: _style, ...plain } = lookFor(scene)
     set = await $.theme.set(plain)
   }
   if (!set.isDrawn) return
@@ -185,8 +187,11 @@ async function apply($: EngineInterface, scene: Scene, announce: boolean) {
 async function record($: EngineInterface, list: readonly Limit[]) {
   const copy = list.map(l => ({ kind: l.kind, percentUsed: l.percentUsed, resetsAt: l.resetsAt }))
   await update($, limits, () => copy)
-  const worst = Math.max(0, ...copy.map(l => l.percentUsed))
-  $.ui.status(copy.length === 0 ? undefined : `Usage ${Math.round(worst)}%`)
+  // The status line names the windows the scene reads, so its number matches.
+  const parts = copy
+    .filter(l => l.kind === 'five_hour' || l.kind === 'seven_day')
+    .map(l => `${NAMES[l.kind]} ${Math.round(l.percentUsed)}%`)
+  $.ui.status(parts.length === 0 ? undefined : parts.join(' · '))
 }
 
 export const register: Register = on => {
@@ -207,7 +212,9 @@ export const register: Register = on => {
   })
 
   on('session.measure', async ($, e, next) => {
-    if (e.changed.includes('rateLimits')) {
+    // The first measurement also settles an account with no limits at all,
+    // which never reports a change to them.
+    if (e.changed.includes('rateLimits') || (await read($, limits)) === null) {
       await record($, e.rateLimits)
       await apply($, sceneFor(e.rateLimits), true)
     }
@@ -223,7 +230,7 @@ export const register: Register = on => {
     return (
       <Svg
         source={sceneSvg(stage, weather)}
-        alt="A Florida Gulf-coast beach: white sand, sea oats, sabal palms, a wooden pier, and gentle waves washing up the shore"
+        alt={altFor(stage, weather)}
         isInteractive
       />
     )
@@ -249,9 +256,12 @@ export const register: Register = on => {
       borderColor: '#2c2a40',
     } as const
     if (list === null || list.length === 0) {
+      // null: no reading yet. Empty: the account reports no usage limits,
+      // as an API key or a plan without them does.
+      const note = list === null ? 'Usage appears after the first reply' : 'This account reports no usage limits'
       return (
         <Box {...card}>
-          <Text color="#e2dfee">Usage appears after the first reply</Text>
+          <Text color="#e2dfee">{note}</Text>
         </Box>
       )
     }

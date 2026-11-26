@@ -1,1 +1,7 @@
-{ "name": "gulf-sunset", "version": "0.1.0", "license": "MIT", "description": "A Florida Gulf-coast sunset theme with a live beach scene and your usage limits always in view", "types": "./types/index.d.ts" }
+{
+  "name": "gulf-sunset",
+  "version": "0.1.1",
+  "description": "A Florida Gulf-coast beach theme that moves from dawn to night with your 5-hour usage, with your limits always in view",
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

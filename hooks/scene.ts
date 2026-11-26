@@ -1,7 +1,7 @@
-// The backdrop: a Gulf-coast barrier-island beach in Florida as the sun goes
-// down: white sugar sand, sea oats on the dune, sabal palms, a wooden pier with
-// a pavilion, and the sun setting into the Gulf. The stage follows
-// usage: golden hour, then sunset, then dusk with a moon and stars.
+// The backdrop: a Gulf-coast barrier-island beach in Florida through a whole
+// day: white sugar sand, sea oats on the dunes, coconut palms, a distant pier,
+// textured clouds and the Gulf. Each Stage is a time of day with its own
+// palette and sun (or moon) position; the weather is fair, or a storm.
 // Detail sits at the top, the corners and the foot; the middle stays calm sky
 // and water so the conversation reads over it.
 
@@ -13,9 +13,9 @@ export const STAGES: readonly Stage[] = [
   'dawn', 'sunrise', 'early', 'morning', 'midday', 'afternoon', 'golden', 'sunset', 'dusk', 'night',
 ]
 
-export type Weather = 'clear' | 'partly' | 'overcast' | 'storm'
+export type Weather = 'fair' | 'storm'
 
-export const WEATHERS: readonly Weather[] = ['clear', 'partly', 'overcast', 'storm']
+export const WEATHERS: readonly Weather[] = ['fair', 'storm']
 
 type Palette = {
   sky: readonly string[]
@@ -324,28 +324,13 @@ const STARS = [
 
 type Look = Palette & { sunOpacity: number; cover: number; rain: boolean }
 
-// Weather comes from the weekly limit: it greys the sky, thickens the clouds
-// and, at the end of the week, brings a storm in.
+// A storm greys the sky, sea and sand, closes the clouds over the sun and
+// brings in rain; fair weather leaves the time of day as it is.
 function withWeather(base: Palette, weather: Weather): Look {
   const gray = (list: readonly string[], to: string, t: number) => list.map(c => mix(c, to, t))
   switch (weather) {
-    case 'clear':
-      return { ...base, cloudAmount: base.cloudAmount * 0.55, sunOpacity: 1, cover: -1.55, rain: false }
-    case 'partly':
+    case 'fair':
       return { ...base, sunOpacity: 1, cover: -1.3, rain: false }
-    case 'overcast':
-      return {
-        ...base,
-        sky: gray(base.sky, '#8a909c', 0.45),
-        sea: gray(base.sea, '#6a7480', 0.35),
-        cloud: mix(base.cloud, '#8a8f9a', 0.5),
-        cloudLit: mix(base.cloudLit, base.cloud, 0.6),
-        glitter: mix(base.glitter, '#8a909c', 0.5),
-        cloudAmount: 1,
-        sunOpacity: 0.35,
-        cover: -0.9,
-        rain: false,
-      }
     case 'storm':
       return {
         ...base,
@@ -364,8 +349,14 @@ function withWeather(base: Palette, weather: Weather): Look {
   }
 }
 
-export function sceneSvg(stage: Stage, weather: Weather = 'partly'): string {
+export function sceneSvg(stage: Stage, weather: Weather = 'fair'): string {
   const p = withWeather(PALETTES[stage], weather)
+  // The soft fade behind the chat: dark in dark mode, sand in light mode, but
+  // always dark over a dark scene, where a pale fade would look like fog.
+  const isDarkScene = stage === 'dusk' || stage === 'night' || weather === 'storm'
+  const scrimCss = isDarkScene
+    ? '.sc{stop-color:#04040c}'
+    : '.sc{stop-color:#04040c}\n@media (prefers-color-scheme: light){.sc{stop-color:#f7f0e4}}'
   const stops = (list: readonly string[]) =>
     list.map((c, i) => `<stop offset="${r1(i / (list.length - 1))}" stop-color="${c}"/>`).join('')
   const glitter = Array.from({ length: 9 }, (_, i) => {
@@ -389,7 +380,7 @@ export function sceneSvg(stage: Stage, weather: Weather = 'partly'): string {
           `<circle class="tw" cx="${x}" cy="${y}" r="${i % 3 === 0 ? 1.8 : 1.2}" fill="#ffffff" style="animation-delay:-${r1((i * 0.7) % 5)}s"/>`,
       ).join('')
     : ''
-  // A waxing crescent: the lit outer edge, then a shallower arc back.
+  // A crescent moon: the lit outer edge, then a shallower arc back.
   const disc = p.isMoon
     ? `<path fill="${p.sun}" d="M${p.sunX} ${p.sunY - p.sunR}A${p.sunR} ${p.sunR} 0 1 0 ${p.sunX} ${p.sunY + p.sunR}A${r1(p.sunR * 0.72)} ${p.sunR} 0 1 1 ${p.sunX} ${p.sunY - p.sunR}Z"/>`
     : `<circle cx="${p.sunX}" cy="${p.sunY}" r="${p.sunR}" fill="${p.sun}"/>`
@@ -414,8 +405,7 @@ export function sceneSvg(stage: Stage, weather: Weather = 'partly'): string {
 @keyframes sway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
 @keyframes oats{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2.5deg)}}
 @keyframes drift{from{transform:translateX(0)}to{transform:translateX(-90px)}}
-.sc{stop-color:#04040c}
-@media (prefers-color-scheme: light){.sc{stop-color:#f7f0e4}}
+${scrimCss}
 </style>
 <defs>
 <linearGradient id="scrim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" class="sc" stop-opacity="0"/><stop offset=".22" class="sc" stop-opacity=".1"/><stop offset=".36" class="sc" stop-opacity=".3"/><stop offset=".5" class="sc" stop-opacity=".38"/><stop offset=".64" class="sc" stop-opacity=".3"/><stop offset=".78" class="sc" stop-opacity=".1"/><stop offset="1" class="sc" stop-opacity="0"/></linearGradient>

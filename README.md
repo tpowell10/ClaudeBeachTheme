@@ -8,11 +8,31 @@ A Florida Gulf-coast beach theme for the Claude desktop and mobile apps, with yo
 - A centered card above the prompt shows each usage window as a solid bar with its percentage and when it resets.
 - Your messages take the color of the time of day; Claude's stay a neutral card. Dark mode sits near true black for OLED screens.
 
-Usage figures come from a Claude subscription and appear after the first reply of a session. The terminal shows the usage card but draws no backdrop.
+## Where it works
+
+| Where | What you get |
+| --- | --- |
+| Claude desktop app and mobile app | Everything: the scene, the usage card, message colors and the dark palette |
+| Claude Code in a terminal | The usage card and the status line; terminals draw no backdrop |
+| Regular claude.ai chats | Not supported: the theme runs in Claude Code sessions |
+
+Usage figures come from a Claude subscription. They appear after the first reply of a session; until then the card says so and the scene shows dawn. An account with no usage limits (an API key, for instance) stays at dawn, and the card says the account reports no limits. Some company accounts only allow approved plugins.
+
+## The usage card
+
+Each window gets a solid bar and its percentage, in the scene's colors:
+
+| Usage | Bar color |
+| --- | --- |
+| Under 50% | Gulf turquoise |
+| 50–79% | Sunset orange |
+| 80% and up | Coral |
+
+The card also says when each window resets, and the status line repeats the two numbers the scene reads, such as `5-hour 34% · Weekly 9%`. A toast tells you when the time of day changes or a storm rolls in.
 
 ## Through the day
 
-The scene follows your 5-hour usage window, one step every 10%:
+The scene follows your 5-hour usage window, one step every 10% (with no 5-hour reading, the fullest window sets the time):
 
 | 5-hour usage | Scene | What you see |
 | --- | --- | --- |
@@ -31,7 +51,7 @@ The scene follows your 5-hour usage window, one step every 10%:
 
 ## The weekly limit
 
-The weekly limit stays out of the scene until it nears its cap. From 85% a storm rolls in over whatever time of day it is: dark clouds, a gray sky, dull water and light rain, since the week is then what will stop you.
+The weekly limit stays out of the scene until it nears its cap. From 85% a storm rolls in over whatever time of day it is: dark clouds, a gray sky, dull water and light rain, since the week is then what will stop you. The storm clears when the weekly limit resets.
 
 ![Midday under clear skies beside the same midday with the storm](assets/storm.png)
 
@@ -60,3 +80,20 @@ claude plugin install gulf-sunset --marketplace tpowell10/ClaudeBeachTheme
 In the desktop app, where `/plugin` does not run: click + next to the prompt box, then Plugins, Add marketplace with `tpowell10/ClaudeBeachTheme`, then Add plugin.
 
 A new session loads the theme when it starts.
+
+To install from a downloaded copy instead, unzip it into a folder that will stay put and run:
+
+```
+claude plugin marketplace add <path to the folder>
+claude plugin install gulf-sunset@gulf-sunset-marketplace
+```
+
+## Changing it
+
+- **When the scene changes:** `stageAt` and `STORM_FROM` in `hooks/register.tsx`.
+- **Colors:** each time of day's sky, sea, sand and sun are in `PALETTES` in `hooks/scene.ts`; the accent and your message color come from `ACCENTS` in `hooks/register.tsx`.
+- **The usage card:** `levelColor` and the card at the end of `hooks/register.tsx`.
+
+## License
+
+MIT, in `LICENSE`.
