@@ -1,0 +1,9 @@
+# Written by Claude Code when the theme loads from this folder
+.claude-plugin/types/
+.mcpb-cache/
+
+# Made by the operating system or an editor
+.DS_Store
+*~
+*.swp
+*.log
