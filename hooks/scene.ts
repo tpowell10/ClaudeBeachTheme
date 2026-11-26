@@ -210,7 +210,11 @@ function coconutPalm(
     const step = length / steps
     let px = tx
     let py = ty
-    let stem = `M${r1(px)} ${r1(py)}`
+    // Coordinates after the first are relative and whole, which draws the same
+    // and keeps the scene well under the app's size limit.
+    let lastX = Math.round(px)
+    let lastY = Math.round(py)
+    let stem = `M${lastX} ${lastY}`
     const gravity = 0.075 + rand() * 0.03
     for (let k = 1; k <= steps; k++) {
       // Gravity turns the heading toward straight down (pi / 2).
@@ -221,7 +225,11 @@ function coconutPalm(
       heading += diff * gravity * (k / steps + 0.4)
       px += Math.cos(heading) * step
       py += Math.sin(heading) * step
-      stem += `L${Math.round(px)} ${Math.round(py)}`
+      const sx = Math.round(px)
+      const sy = Math.round(py)
+      stem += `l${sx - lastX} ${sy - lastY}`
+      lastX = sx
+      lastY = sy
       if (k < 2) continue
       const t = k / steps
       const leafLen = 44 * scale * Math.pow(Math.sin(Math.PI * Math.min(1, t * 1.15)), 0.55) * (0.92 + rand() * 0.16)
@@ -236,7 +244,7 @@ function coconutPalm(
         const ey = py + Math.sin(a) * leafLen
         const mx = (px + ex) / 2 + Math.cos(a + side * 0.5) * leafLen * 0.08
         const my = (py + ey) / 2 - leafLen * 0.06
-        leaves += `M${Math.round(px)} ${Math.round(py)}Q${Math.round(mx)} ${Math.round(my)} ${Math.round(ex)} ${Math.round(ey)}`
+        leaves += `M${sx} ${sy}q${Math.round(mx) - sx} ${Math.round(my) - sy} ${Math.round(ex) - sx} ${Math.round(ey) - sy}`
       }
     }
     stems += stem
