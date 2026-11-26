@@ -161,27 +161,42 @@ function resetsIn(resetsAt: string | undefined, now: number): string {
   return `resets in ${mins}m`
 }
 
+// The scene on screen now, and its key, once the app has taken it.
 let current: string | undefined
+let shown: Scene | undefined
 
 async function apply($: EngineInterface, scene: Scene, announce: boolean) {
   const key = `${scene.stage}-${scene.weather}`
   if (key === current) return
-  const previous = current
-  current = key
   let set
   try {
     set = await $.theme.set(lookFor(scene))
   } catch (error) {
     // A build that does not take `style` refuses the whole look: set it without.
     $.ui.log(`gulf-sunset: ${String(error)}`)
-    const { style: _style, ...plain } = lookFor(scene)
-    set = await $.theme.set(plain)
+    try {
+      const { style: _style, ...plain } = lookFor(scene)
+      set = await $.theme.set(plain)
+    } catch (again) {
+      // Leave `current` alone, so the next reading tries this scene again.
+      $.ui.log(`gulf-sunset: the theme was refused: ${String(again)}`)
+      return
+    }
   }
-  if (!set.isDrawn) return
-  if (announce && previous !== undefined) {
-    const storm = scene.weather === 'storm' ? ' A storm is rolling in: the weekly limit is past 85%.' : ''
-    $.ui.toast(`${LABELS[scene.stage]} on the Gulf.${storm}`)
+  const previous = shown
+  current = key
+  shown = scene
+  if (!set.isDrawn || !announce || previous === undefined) return
+  // Name the change: a new time of day, and the storm only when it comes or goes.
+  let weather = ''
+  if (scene.weather === 'storm' && previous.weather !== 'storm') {
+    weather = ' A storm is rolling in: the weekly limit is past 85%.'
+  } else if (scene.weather !== 'storm' && previous.weather === 'storm') {
+    weather = ' The storm has cleared.'
   }
+  const time = scene.stage === previous.stage ? '' : `${LABELS[scene.stage]} on the Gulf.`
+  const text = `${time}${weather}`.trim()
+  if (text !== '') $.ui.toast(text)
 }
 
 async function record($: EngineInterface, list: readonly Limit[]) {
