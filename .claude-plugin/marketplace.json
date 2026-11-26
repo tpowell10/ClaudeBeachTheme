@@ -1,0 +1,5 @@
+{
+  "name": "gulf-sunset-marketplace",
+  "owner": { "name": "gulf-sunset" },
+  "plugins": [{ "name": "gulf-sunset", "source": "./", "description": "A Florida Gulf-coast beach theme that follows your usage through the day" }]
+}
